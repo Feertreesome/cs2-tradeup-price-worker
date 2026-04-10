@@ -13,6 +13,7 @@ export const env = {
   autoRefreshIntervalMs: Number(process.env.AUTO_REFRESH_INTERVAL_MS) || 6 * 60 * 60 * 1000,
   workerVerboseProgress: process.env.WORKER_VERBOSE_PROGRESS === 'true',
   workerProgressEveryNSkins: Math.max(Number(process.env.WORKER_PROGRESS_EVERY_N_SKINS) || 100, 1),
+  workerRunningJobStaleAfterMs: Math.max(Number(process.env.WORKER_RUNNING_JOB_STALE_AFTER_MS) || 30 * 60 * 1000, 1),
   backendInternalUrl: process.env.BACKEND_INTERNAL_URL || '',
   backendInternalToken: process.env.BACKEND_INTERNAL_TOKEN || '',
   steamMarketAppId: Number(process.env.STEAM_MARKET_APP_ID) || 730,

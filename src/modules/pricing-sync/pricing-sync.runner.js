@@ -6,6 +6,7 @@ import { env } from '../../config/env.js';
 import { createLogger } from '../../shared/utils/logger.js';
 import { notifyRankingRebuildAfterPricing } from './pricing-sync.backend-notifier.js';
 import { pricingSyncJobStatuses } from './pricing-sync.constants.js';
+import { getRecoverableErrorMessage, isRecoverablePricingSyncError } from './pricing-sync.error-utils.js';
 import {
   getJobById,
   getLatestSyncJob,
@@ -18,6 +19,7 @@ import {
 } from './pricing-sync.service.js';
 
 const RATE_LIMIT_PAUSE_BASE_MS = 10 * 60 * 1000;
+const RECOVERABLE_ERROR_PAUSE_MS = 15 * 60 * 1000;
 let activeRunnerJobId = null;
 const scheduledResumeTimers = new Map();
 const logger = createLogger('pricing-sync');
@@ -231,6 +233,50 @@ const handleRateLimitPause = async (job, progress) => {
   scheduleResumeTimer(pausedJob._id.toString(), resumeAfter);
 
   return pausedJob;
+};
+
+const pauseJobAfterRecoverableError = async (job, latestJob, error) => {
+  const resumeAfter = new Date(Date.now() + RECOVERABLE_ERROR_PAUSE_MS);
+  const errorMessage = getRecoverableErrorMessage(error);
+
+  logger.warn('recoverable error detected', {
+    jobId: job._id.toString(),
+    error: errorMessage,
+    code: error?.code || error?.cause?.code || null
+  });
+
+  await updateSyncProgress(job._id, {
+    currentCollectionName: latestJob.currentCollectionName,
+    currentSkinMarketHashName: latestJob.currentSkinMarketHashName,
+    processedCollections: latestJob.processedCollections,
+    processedSkins: latestJob.processedSkins,
+    failedItems: latestJob.failedItems,
+    partialItems: latestJob.partialItems,
+    processedCollectionNames: latestJob.processedCollectionNames,
+    consecutiveRateLimitPauses: latestJob.consecutiveRateLimitPauses,
+    totalCollections: latestJob.totalCollections,
+    totalSkins: latestJob.totalSkins,
+    lastError: errorMessage,
+    lastHeartbeatAt: new Date(),
+    lastProgressMessage: `Pricing sync paused after recoverable error at ${latestJob.currentCollectionName || 'unknown collection'}`,
+    lastErrorMessage: errorMessage,
+    resumeAfter
+  });
+
+  const refreshedJob = await getJobById(job._id);
+
+  if (refreshedJob.status === pricingSyncJobStatuses.running) {
+    await pauseSyncJob(job._id);
+  }
+
+  scheduleResumeTimer(job._id.toString(), resumeAfter);
+
+  logger.warn('pausing job after recoverable error', {
+    jobId: job._id.toString(),
+    resumeAfter: resumeAfter.toISOString()
+  });
+
+  return getJobById(job._id);
 };
 
 const runJobLoop = async (job) => {
@@ -491,6 +537,20 @@ const runWithLock = async (job) => {
   } catch (error) {
     const latestJob = await getJobById(job._id);
     clearScheduledResumeTimer(job._id.toString());
+
+    if (latestJob.status !== pricingSyncJobStatuses.running) {
+      return latestJob;
+    }
+
+    if (isRecoverablePricingSyncError(error)) {
+      return pauseJobAfterRecoverableError(job, latestJob, error);
+    }
+
+    logger.error('fatal error detected', {
+      jobId: job._id.toString(),
+      error: error instanceof Error ? error.message : String(error)
+    });
+
     const failedJob = await markJobFailed(job._id, error, {
       currentCollectionName: latestJob.currentCollectionName,
       currentSkinMarketHashName: latestJob.currentSkinMarketHashName,
