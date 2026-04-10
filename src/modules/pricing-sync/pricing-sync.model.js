@@ -100,5 +100,14 @@ const pricingSyncJobSchema = new mongoose.Schema(
 pricingSyncJobSchema.index({ status: 1 });
 pricingSyncJobSchema.index({ type: 1 });
 pricingSyncJobSchema.index({ updatedAt: 1 });
+pricingSyncJobSchema.index(
+  { type: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      status: pricingSyncJobStatuses.running
+    }
+  }
+);
 
 export const PricingSyncJob = mongoose.model('PricingSyncJob', pricingSyncJobSchema);

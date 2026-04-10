@@ -4,6 +4,7 @@ import { pricingSyncJobStatuses, pricingSyncJobType } from './pricing-sync.const
 
 const dedupeStrings = (items = []) => [...new Set(items.filter(Boolean))];
 const normalizeMessage = (value) => (value ? String(value) : null);
+const isDuplicateKeyError = (error) => error?.name === 'MongoServerError' && error?.code === 11000;
 
 const buildCheckpointUpdate = (updates = {}) => {
   const nextUpdates = {};
@@ -141,7 +142,24 @@ export const startSyncJob = async (payload = {}) => {
 
   Object.assign(job, buildCheckpointUpdate(payload));
 
-  await job.save();
+  try {
+    await job.save();
+  } catch (error) {
+    if (!isDuplicateKeyError(error)) {
+      throw error;
+    }
+
+    const latestActiveJob = await getActiveSyncJob();
+
+    if (!latestActiveJob) {
+      throw error;
+    }
+
+    latestActiveJob.$locals = latestActiveJob.$locals || {};
+    latestActiveJob.$locals.wasStartedFresh = false;
+    return latestActiveJob;
+  }
+
   job.$locals = job.$locals || {};
   job.$locals.wasStartedFresh = true;
 
@@ -185,7 +203,22 @@ export const resumeSyncJob = async (jobId = null) => {
   job.lastErrorMessage = null;
   job.lastHeartbeatAt = new Date();
   job.lastProgressMessage = 'Pricing sync resumed';
-  await job.save();
+
+  try {
+    await job.save();
+  } catch (error) {
+    if (!isDuplicateKeyError(error)) {
+      throw error;
+    }
+
+    const latestActiveJob = await getActiveSyncJob();
+
+    if (!latestActiveJob) {
+      throw error;
+    }
+
+    return latestActiveJob;
+  }
 
   return job;
 };

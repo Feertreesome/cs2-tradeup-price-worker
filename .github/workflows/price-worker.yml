@@ -2,9 +2,11 @@ name: Price Worker
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
 
 concurrency:
-  group: price-worker-sync
+  group: price-worker
   cancel-in-progress: false
 
 jobs:
