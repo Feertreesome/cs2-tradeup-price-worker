@@ -42,7 +42,6 @@ const getSimplifiedSearchQuery = (marketHashName) => {
 };
 
 export const getSteamPriceOverviewUrl = (marketHashName) => {
-  console.log('getSteamPriceOverviewUrl', marketHashName);
   const url = new URL('https://steamcommunity.com/market/priceoverview/');
 
   url.searchParams.set('appid', String(env.steamMarketAppId));
@@ -54,7 +53,6 @@ export const getSteamPriceOverviewUrl = (marketHashName) => {
 };
 
 export const getSteamMarketSearchUrl = (marketHashName, steamTag = null) => {
-  console.log('=====getSteamMarketSearchUrl======', marketHashName, steamTag);
   const url = new URL('https://steamcommunity.com/market/search/render/');
 
   url.searchParams.set('appid', String(env.steamMarketAppId));
@@ -197,7 +195,6 @@ export const fetchPriceMapFromSearch = async (skin) => {
 
   for (const searchQuery of searchQueries) {
     searchResults = await fetchSearchResultsWithRetry(searchQuery, steamTag);
-    console.log('=====fetchSearchResultsWithRetry======', searchResults);
 
     const hasValidResults = searchResults.some((searchResult) => {
       const marketHashName = searchResult.hash_name || searchResult.name || '';
