@@ -1,6 +1,5 @@
 import { Collection } from '../collections/collection.model.js';
 import { Skin } from '../skins/skin.model.js';
-import { clearPriceCache } from '../pricing/pricing.cache.service.js';
 import { refreshPriceMapForSkin } from '../pricing/pricing.refresh.service.js';
 import { env } from '../../config/env.js';
 import { createLogger } from '../../shared/utils/logger.js';
@@ -593,7 +592,9 @@ export const runPricingSyncJob = async (payload = {}) => {
   });
 
   if (job?.$locals?.wasStartedFresh) {
-    await clearPriceCache();
+    logger.info('fresh sync no longer clears Pricing collection', {
+      jobId: job._id.toString()
+    });
   }
 
   return runWithLock(job);
@@ -629,7 +630,9 @@ export const startPricingSyncInBackground = async (payload = {}) => {
   const job = await startSyncJob(payload);
 
   if (job?.$locals?.wasStartedFresh) {
-    await clearPriceCache();
+    logger.info('fresh sync no longer clears Pricing collection', {
+      jobId: job._id.toString()
+    });
   }
 
   if (!isPricingSyncRunnerActive()) {
