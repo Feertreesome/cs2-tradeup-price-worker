@@ -17,7 +17,6 @@ export const env = {
   backendInternalUrl: process.env.BACKEND_INTERNAL_URL || '',
   backendInternalToken: process.env.BACKEND_INTERNAL_TOKEN || '',
   steamMarketAppId: Number(process.env.STEAM_MARKET_APP_ID) || 730,
-  priceCacheTtlMinutes: Number(process.env.PRICE_CACHE_TTL_MINUTES) || 360,
   priceRequestDelayMs: Number(process.env.PRICE_REQUEST_DELAY_MS) || 400,
   priceRequestRetries: Number(process.env.PRICE_REQUEST_RETRIES) || 2
 };

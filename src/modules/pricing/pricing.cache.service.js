@@ -1,10 +1,8 @@
-import { env } from '../../config/env.js';
 import { createLogger } from '../../shared/utils/logger.js';
 import { Pricing } from './pricing.model.js';
-import { createExpirationDate, isPriceCacheFresh, normalizePriceMap } from './pricing.utils.js';
+import { normalizePriceMap } from './pricing.utils.js';
 
 const STEAM_PRICE_SOURCE = 'steam';
-const PRICE_CACHE_TTL_MS = env.priceCacheTtlMinutes * 60 * 1000;
 const logger = createLogger('pricing-cache');
 
 const normalizeCachedPricingEntry = (cacheEntry) => {
@@ -29,7 +27,6 @@ export const upsertPriceCache = async ({ marketHashName, prices, fetchedAt, isCo
       prices: normalizedPrices,
       source: STEAM_PRICE_SOURCE,
       fetchedAt,
-      expiresAt: createExpirationDate(PRICE_CACHE_TTL_MS, fetchedAt),
       isComplete
     },
     {
@@ -61,14 +58,4 @@ export const getCachedPricingEntry = async (marketHashName) => {
   }
 
   return Pricing.findOne({ marketHashName }).lean().then(normalizeCachedPricingEntry);
-};
-
-export const getCachedPriceMap = async (marketHashName) => {
-  const cachedEntry = await getCachedPricingEntry(marketHashName);
-
-  if (!cachedEntry || cachedEntry.isComplete === false || !isPriceCacheFresh(cachedEntry)) {
-    return null;
-  }
-
-  return normalizePriceMap(cachedEntry.prices);
 };

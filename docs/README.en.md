@@ -121,9 +121,8 @@ The worker currently uses the following environment variables.
 
 - `STEAM_MARKET_APP_ID`: Steam app id. Default is `730` for CS2.
 
-### Pricing cache and request behavior
+### Pricing storage and request behavior
 
-- `PRICE_CACHE_TTL_MINUTES`: TTL written into price cache documents.
 - `PRICE_REQUEST_DELAY_MS`: fixed delay used between retry attempts and between certain follow-up requests.
 - `PRICE_REQUEST_RETRIES`: retry count for Steam requests that fail.
 

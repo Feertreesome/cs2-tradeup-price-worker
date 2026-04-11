@@ -119,16 +119,6 @@ export const getExteriorFromMarketHashName = (marketHashName, baseMarketHashName
   return null;
 };
 
-export const isPriceCacheFresh = (cacheEntry, now = new Date()) => {
-  if (!cacheEntry?.expiresAt) {
-    return false;
-  }
-
-  return new Date(cacheEntry.expiresAt).getTime() > now.getTime();
-};
-
-export const createExpirationDate = (ttlMs, now = new Date()) => new Date(now.getTime() + ttlMs);
-
 export const delay = (ms) =>
   new Promise((resolve) => {
     setTimeout(resolve, ms);

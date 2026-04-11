@@ -121,9 +121,8 @@ npm start
 
 - `STEAM_MARKET_APP_ID`: Steam app id. За замовчуванням `730` для CS2.
 
-### Кеш цін і поведінка запитів
+### Зберігання цін і поведінка запитів
 
-- `PRICE_CACHE_TTL_MINUTES`: TTL, який записується в price cache documents.
 - `PRICE_REQUEST_DELAY_MS`: фіксована затримка між retry-спробами і деякими follow-up запитами.
 - `PRICE_REQUEST_RETRIES`: кількість retry-спроб для Steam запитів.
 

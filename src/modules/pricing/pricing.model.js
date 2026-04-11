@@ -37,10 +37,6 @@ const pricingSchema = new mongoose.Schema(
       type: Date,
       required: true
     },
-    expiresAt: {
-      type: Date,
-      required: true
-    },
     isComplete: {
       type: Boolean,
       required: true,
@@ -51,7 +47,5 @@ const pricingSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-pricingSchema.index({ expiresAt: 1 });
 
 export const Pricing = mongoose.model('Pricing', pricingSchema);

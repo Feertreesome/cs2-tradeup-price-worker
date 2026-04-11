@@ -1,12 +1,6 @@
-import { getCachedPricingEntry, upsertPriceCache } from './pricing.cache.service.js';
+import { upsertPriceCache } from './pricing.cache.service.js';
 import { fetchPriceMapFromSteam } from './pricing.steam.service.js';
 import { getDefaultPriceMap, normalizePriceMap } from './pricing.utils.js';
-
-const getStoredUsdPrices = async (marketHashName) => {
-  const cachedEntry = await getCachedPricingEntry(marketHashName);
-
-  return cachedEntry?.prices ? normalizePriceMap(cachedEntry.prices) : getDefaultPriceMap();
-};
 
 const refreshUsdPriceMap = async ({ skin, initialPriceMap }) => {
   try {
@@ -40,10 +34,9 @@ export const refreshPriceMapForSkin = async (skin) => {
     };
   }
 
-  const storedPrices = await getStoredUsdPrices(skin.marketHashName);
   const usdResult = await refreshUsdPriceMap({
     skin,
-    initialPriceMap: storedPrices
+    initialPriceMap: getDefaultPriceMap()
   });
 
   const nextPrices = normalizePriceMap(usdResult.priceMap);
