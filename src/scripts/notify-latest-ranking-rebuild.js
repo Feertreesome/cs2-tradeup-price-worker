@@ -25,7 +25,7 @@ const main = async () => {
       return;
     }
 
-    console.log(`Ranking rebuild notification sent for pricing sync job ${job._id.toString()}`);
+    console.log(`Backend opportunity scan dispatch sent for pricing sync job ${job._id.toString()}`);
   } finally {
     await mongoose.disconnect();
   }

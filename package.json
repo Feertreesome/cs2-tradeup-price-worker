@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "sync:once": "node src/scripts/run-pricing-sync-once.js",
+    "dispatch:opportunity-scan:latest": "node src/scripts/notify-latest-ranking-rebuild.js",
     "notify:rankings-rebuild:latest": "node src/scripts/notify-latest-ranking-rebuild.js",
     "test": "echo \"No tests configured\""
   },
