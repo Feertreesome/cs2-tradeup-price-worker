@@ -32,4 +32,8 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           BACKEND_INTERNAL_URL: ${{ secrets.BACKEND_INTERNAL_URL }}
           BACKEND_INTERNAL_TOKEN: ${{ secrets.BACKEND_INTERNAL_TOKEN }}
+          BACKEND_REPO_OWNER: ${{ secrets.BACKEND_REPO_OWNER }}
+          BACKEND_REPO_NAME: ${{ secrets.BACKEND_REPO_NAME }}
+          BACKEND_REPO_DISPATCH_EVENT: ${{ secrets.BACKEND_REPO_DISPATCH_EVENT }}
+          BACKEND_REPO_DISPATCH_TOKEN: ${{ secrets.BACKEND_REPO_DISPATCH_TOKEN }}
         run: npm run sync:once
